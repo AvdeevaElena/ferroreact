@@ -1,0 +1,188 @@
+import {
+         timelineCommonRowBurn, 
+         timelineCommonRowStop, 
+         timelineCommonRowStart, 
+         timelineCommonRowPauseLost }            from './timelineCommonDataTracker';
+import { tableCommonDataTracker }         from './tableCommonDataTracker';
+import { graphCommonRow }                 from './graphCommonDataTracker';
+import { TwoTablesCommonRow }             from './twoTablesCommonDataTracker';
+import { kiln_constants_ru }              from '../../constants/kiln_constants'
+
+// Prepares data for charts before data to be fill
+
+export const TimelineColumns = [
+  { type: "string", id: "Role" },
+  { type: "string", id: "Name" },
+  { type: "string", id: 'style', role: 'style' },
+  { type: 'string', role: 'tooltip','p': {'html': true}},
+  { type: 'date',   id: 'Start' },
+  { type: 'date',   id: 'Stop' }
+];
+
+export const TableColumns = [
+  { type: 'string', label: 'Запуск' },
+  { type: 'number', label: 'N обж' },
+  { type: 'string', label: 'Назв. программы' },
+  { type: 'string', label: 'Стоп' },
+  { type: 'string', label: 'Длительность' },
+  { type: 'string', label: 'Расх. воды, м³/час' },
+  { type: 'string', label: 'Потребл., кВА' },
+  { type: 'string', label: 'Потребл., кВт' }
+];
+
+
+export const TableColumnsFR06 = [
+  { type: 'string', label: 'Запуск' },
+  { type: 'number', label: 'N обж' },
+  { type: 'string', label: 'Назв. программы' },
+  { type: 'string', label: 'Стоп' }
+
+];
+
+
+export const TableColumnsFR05= [
+  { type: 'string', label: 'Запуск' },
+  { type: 'number', label: 'N обж' },
+  { type: 'string', label: 'Стоп' }
+
+];
+
+
+
+export const TwoTablesColumnsHeat = [
+  { type: "number", label:  "Шаг" },
+  { type: "number", label:  "Режим нагрева" },
+  { type: "number", label:  "Температура, °С" },
+  { type: "string", label:  "Время Шага" }
+];
+
+export const TwoTablesColumnsGas = [
+  { type: "number", label:  "Шаг" },
+  { type: "number", label:  "Режим нагрева" },
+  { type: "number", label:  "Возд, м³/час" },
+  { type: "string", label:  "Кислород, %" },
+  { type: "string", label:  "Время Шага" }
+];
+
+export function handleTimelineResponseCommon (kilntype, response) {
+
+  console.log ("kilntype" , kilntype);
+  console.log ("response.data  table" , response.data);
+
+  var HtmltooltipProperty='';
+
+  switch (kilntype) {
+    case kiln_constants_ru.Раиса  : HtmltooltipProperty ='full';        break;
+    case kiln_constants_ru.Раиса2 : HtmltooltipProperty ='full';        break;
+    case kiln_constants_ru.ФР05   : HtmltooltipProperty ='fullfr05';      break;
+    case kiln_constants_ru.ФР06   : HtmltooltipProperty ='fullfr06';      break;
+  }
+  
+  const rowsTimeLine=[], rowsTable=[];
+  const dataTimeLine=response.data[1];
+
+  for (let i = 0; i < dataTimeLine.length; i += 1) { 
+    rowsTable.push(
+      tableCommonDataTracker  (kilntype, dataTimeLine[i])      
+    );
+    rowsTimeLine.push(
+      timelineCommonRowBurn   (kilntype, dataTimeLine[i],  HtmltooltipProperty),   
+      timelineCommonRowStop   (kilntype, dataTimeLine[i], 'stop'),  
+      timelineCommonRowStart  (kilntype, dataTimeLine[i], 'start'),
+    );
+    if (i !== dataTimeLine.length-1) rowsTimeLine.push(timelineCommonRowPauseLost(kilntype, dataTimeLine[i], dataTimeLine[i + 1]));
+  }
+
+  return {rowsTimeLine: rowsTimeLine, rowsTable: rowsTable};
+}
+
+export function handleGraphResponseCommon (kilntype, response) {
+
+  
+  const dataTable=response.data;
+  var chartDataShort=[], chartDataCurrents=[], chartDataAirHeaters=[];
+  if (kilntype == 'ФР05'  ) {
+
+    const chartDataAll= [[
+      { type: 'date', label: 'Время'},
+      'Уставка °С',
+      'Температура S °С',
+      'Мощность нагревателей, %'
+      
+    ]];
+  
+    for (let i = 0; i < dataTable.length-1; i += 1) {
+      chartDataAll.push(graphCommonRow(kilntype, dataTable[i]));
+    }
+    
+    return {chartDataAll: chartDataAll};
+  }
+ 
+  else if (kilntype == 'ФР06' ) {
+
+    const chartDataAll= [[
+      { type: 'date', label: 'Время'},
+      'Температура S °С',
+      'Температура K °С',
+      'Cкорость вентилятора'
+    ]];
+  
+    for (let i = 0; i < dataTable.length-1; i += 1) {
+      chartDataAll.push(graphCommonRow(kilntype, dataTable[i]));
+    }
+    
+    return {chartDataAll: chartDataAll};
+  }
+
+
+
+  else
+   if (kilntype == 'Раиса' || kilntype == 'Раиса2' ) {
+
+    const chartDataAll= [[
+      { type: 'date', label: 'Время'},
+      'Азот SP, %',
+      'Азот PV, %',
+      'SP',
+      'Средняя °С',
+      'Ток L1, А',
+      'Ток L2, А',
+      'Ток L3, А', 
+      'TC411, °С',
+      'TC412, °С',
+      'TC413, °С',
+      'A, %', 
+      'B, %', 
+      'C, %',
+      'D, %',
+      'E, %' 
+    ]];
+    
+  
+    for (let i = 0; i < dataTable.length-1; i += 1) {
+      chartDataAll.push(graphCommonRow(kilntype, dataTable[i]));
+    }
+    
+    chartDataShort      = chartDataAll.map(row => {return row.slice(0,5)});
+    chartDataCurrents   = chartDataAll.map(row => {return row.slice(0,8)});
+    chartDataAirHeaters = chartDataAll.map(row => {return [...row.slice(0,5),...row.slice(8,11)]});
+    
+    return {chartDataAll: chartDataAll, chartDataShort: chartDataShort, chartDataCurrents: chartDataCurrents, chartDataAirHeaters: chartDataAirHeaters};
+
+
+  }
+ 
+  
+}
+
+export function handleTwoTablesResponseCommon (kilntype, HeatOrGasParameter, response) {
+  const rowsTable=[];
+  const dataTable=response.data;
+  for (let i = 0; i < dataTable.length; i += 1) {         
+    rowsTable.push(
+      TwoTablesCommonRow(kilntype, HeatOrGasParameter, dataTable[i])
+    );
+  }
+
+  return {dataTable: rowsTable};
+}

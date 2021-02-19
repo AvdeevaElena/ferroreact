@@ -1,0 +1,58 @@
+ul li {
+  list-style: georgian;
+}
+.App {
+  text-align: center;
+}
+.App-logo {
+  pointer-events: none;
+  height: 56px;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.App-logo-loading {
+  animation: App-logo-spin infinite 5s linear;
+  pointer-events: none;
+  height: 112px;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.logout-logo {
+  margin-left: 10px;
+  pointer-events: none;
+  height: 32px;
+  opacity: 0.9;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.logout-logo-hover {
+  margin-left: 10px;
+  pointer-events: none;
+  height: 32px;
+  opacity: 0.7;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+.app-wrapper {
+  display: inline-block;
+}
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
